@@ -190,4 +190,99 @@ X_train = X_train.astype("float32")/255
 y_train = np.array(train_labels)
 y_train = to_categorical(y_train)
 ```
+```python
+#To avoid training for too long, picked PCA
+model = Pipeline(steps = [
+    ('pca', PCA(n_components= 1000, random_state= 13)),
+    ('mlp', MLPRegressor(  #Using Regressor instead of Classifier because we need the scores for every label to get top_acc 
+        hidden_layer_sizes=[300, 200],
+        #activation='relu',
+        random_state=13))
+])
 
+model.fit(X_train, y_train)
+```
+
+```python
+X_test = test.reshape((450, 6400))
+X_test = X_test.astype("float32")/255
+
+y_test = np.array(test_labels)
+
+test_pred = model.predict(X_test)
+test_pred_max = np.argmax(test_pred, axis = 1)
+
+print(accuracy_score(y_test, test_pred_max))
+
+
+y_test = to_categorical(y_test)
+x = top_acc_5(y_test, test_pred)
+print(np.sum(x)/len(x))
+```
+
+```python
+X_valid = valid.reshape((450, 6400))
+X_valid = X_valid.astype("float32")/255
+
+y_valid = np.array(valid_labels)
+
+valid_pred = model.predict(X_valid)
+valid_pred_max = np.argmax(valid_pred, axis = 1)
+
+print(accuracy_score(y_valid, valid_pred_max))
+
+
+y_valid = to_categorical(y_valid)
+x = top_acc_5(y_valid, valid_pred)
+print(np.sum(x)/len(x))
+```
+
+## XGB Method
+```python
+model = Pipeline(steps = [
+    ('pca', PCA(n_components= 1000, random_state= 13)),
+    ('xgb', XGBRegressor(
+        max_depth = 4,
+        n_estimators=50,
+        tree_method = "hist",
+        random_state=13)
+    )
+])
+
+
+model.fit(X_train, y_train)
+```
+
+```python
+X_test = test.reshape((450, 6400))
+X_test = X_test.astype("float32")/255
+
+y_test = np.array(test_labels)
+
+test_pred = model.predict(X_test)
+test_pred_max = np.argmax(test_pred, axis = 1)
+
+print(accuracy_score(y_test, test_pred_max))
+
+
+y_test = to_categorical(y_test)
+x = top_acc_5(y_test, test_pred)
+print(np.sum(x)/len(x))
+```
+
+```python
+X_valid = valid.reshape((450, 6400))
+X_valid = X_valid.astype("float32")/255
+
+y_valid = np.array(valid_labels)
+
+valid_pred = model.predict(X_valid)
+valid_pred_max = np.argmax(valid_pred, axis = 1)
+
+print(accuracy_score(y_valid, valid_pred_max))
+
+
+y_valid = to_categorical(y_valid)
+x = top_acc_5(y_valid, valid_pred)
+print(np.sum(x)/len(x))
+```
